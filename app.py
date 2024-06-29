@@ -5,7 +5,7 @@ from streamlit_carousel import carousel  # c2
 
 # Local imports
 from helper import is_video_file
-from context import ImageClassifier
+from old_context import ImageClassifier
 
 st.set_page_config(layout="wide")
 st.title("Analysis App")

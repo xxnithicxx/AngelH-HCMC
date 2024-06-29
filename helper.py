@@ -1,3 +1,8 @@
+import requests
+import json
+import os
+
+
 def is_video_file(filename):
     video_file_extensions = (
         '.264', '.3g2', '.3gp', '.3gp2', '.3gpp', '.3gpp2', '.3mm', '.3p2', '.60d', '.787', '.89', '.aaf', '.aec', '.aep', '.aepx',
@@ -31,3 +36,30 @@ def is_video_file(filename):
     if filename.endswith((video_file_extensions)):
         return True
     return False
+
+
+def get_coze_data(prompt, image_url, bot_id=None):
+    """
+    Get data from Coze API
+    prompt: str
+    image_url: str. Input image URL in format 'https://example.com/*.jpg'
+    bot_id: str. Bot ID. Default is None, get from Coze API
+    """
+    headers = {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+        'Host': 'api.coze.com',
+        'Connection': 'keep-alive',
+    }
+
+    json_data = {
+        'bot_id': bot_id,
+        'user': '29032201862555',
+        'query': f"{prompt} + img_url: {image_url}",
+        'stream': False,
+    }
+
+    response = requests.post(
+        'https://api.coze.com/open_api/v2/chat', headers=headers, json=json_data)
+    return response.json()
