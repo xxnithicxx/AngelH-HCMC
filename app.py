@@ -3,6 +3,7 @@ import streamlit as st
 from streamlit_carousel import carousel  # Ensure you have installed this library
 
 from helper import is_video_file
+from context import ContextAnalysis
 import io
 import cloudinary
 import cloudinary.uploader
@@ -17,8 +18,16 @@ cloudinary.config(
 st.set_page_config(layout="wide")
 st.title("Analysis App")
 
+
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# Initialize all classes
+context_classifier = ContextAnalysis()
+
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 
 
 class UI:
@@ -91,6 +100,28 @@ class UI:
                     st.write(chosen_item["predict"]["analysis"])
 
 
+
+with col2:
+    st.header("Analysis")
+
+    if uploaded_files:
+        # Analyze image information
+        # ocr_results = ' '.join(ocr_texts)
+        # analysis = analyze_image_information(image_description, ocr_results)
+        # st.write(analysis)
+        
+       # 5. Display image location
+        image_content = {}
+        for uploaded_file in uploaded_files:
+            image = Image.open(uploaded_file)
+            image_content[uploaded_file.name] = context_classifier.classify(
+                image)
+
+        content = image_content.get(
+            selected_image.name, "No content available for this image.")
+        st.write(content)
+
 if __name__ == "__main__":
     main = UI()
     main.run()
+
