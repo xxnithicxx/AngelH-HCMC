@@ -83,7 +83,7 @@ class FaceEmotionAnalyzer:
 
 
 if __name__ == "__main__":
-    api_key = "F5uRJee4yp7zA9a9hwkIAuTv9kiBJhALiyrYI8zplGzdpWht"
+    api_key = "Your_API"
     filepaths = [
         "faces.zip",
         "BZ1A0408.jpg",
