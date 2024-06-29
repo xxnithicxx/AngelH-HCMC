@@ -5,7 +5,8 @@ from streamlit_carousel import carousel  # c2
 
 # Local imports
 from helper import is_video_file
-from old_context import ImageClassifier
+from context import ContextAnalysis
+
 
 st.set_page_config(layout="wide")
 st.title("Analysis App")
@@ -14,7 +15,7 @@ with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # Initialize all classes
-context_classifier = ImageClassifier()
+context_classifier = ContextAnalysis()
 
 
 # Create columns
@@ -73,8 +74,8 @@ with col2:
         # ocr_results = ' '.join(ocr_texts)
         # analysis = analyze_image_information(image_description, ocr_results)
         # st.write(analysis)
-
-        # 5. Display image location
+        
+       # 5. Display image location
         image_content = {}
         for uploaded_file in uploaded_files:
             image = Image.open(uploaded_file)
