@@ -56,7 +56,7 @@ class FaceEmotionAnalyzer:
 
             draw = ImageDraw.Draw(image)
             font_size = 75
-            font = ImageFont.truetype("arial.ttf", font_size)
+            font = ImageFont.truetype("Arial.ttf", font_size)
 
             face_count = 1
             for face in prediction['results']['predictions'][0]['models']['face']['grouped_predictions']:
@@ -76,8 +76,8 @@ class FaceEmotionAnalyzer:
                     face_count += 1
 
             image.save(
-                f'resource\\emotion\\{os.path.basename(image_paths)}', quality=95)
-            return f'resource\\emotion\\{os.path.basename(image_paths)}'
+                f'resource/emotion/{os.path.basename(image_paths)}', quality=95)
+            return f'resource/emotion/{os.path.basename(image_paths)}'
 
     def analyze_emotion(self, image_path):
         self.submit_job_client(image_path)

@@ -67,4 +67,4 @@ class DectectMarketing:
     def detect_marketing(self, image_path):
         results = self.model(source=image_path, save=True, conf=0.35, project="resource", name="advertisement")[0]
         # results.show()
-        return f'resource\\advertisement\\{os.path.basename(image_path)}'
+        return f'resource/advertisement/{os.path.basename(image_path)}'
