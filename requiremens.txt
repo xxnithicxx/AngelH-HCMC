@@ -1,0 +1,8 @@
+inference_sdk
+google-cloud-vision
+moviepy
+pytube
+SpeechRecognition
+google-generativeai
+ultralytics
+roboflow

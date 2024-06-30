@@ -2,6 +2,8 @@ import requests
 import json
 import os
 
+from secret_key import COZE_API_KEY
+
 
 def is_video_file(filename):
     video_file_extensions = (
@@ -38,7 +40,7 @@ def is_video_file(filename):
     return False
 
 
-def get_coze_data(prompt, image_url, bot_id=None):
+def get_coze_data(prompt, image_url, bot_id: str = None):
     """
     Get data from Coze API
     prompt: str
@@ -46,7 +48,7 @@ def get_coze_data(prompt, image_url, bot_id=None):
     bot_id: str. Bot ID. Default is None, get from Coze API
     """
     headers = {
-        'Authorization': 'Bearer YOUR_API_KEY',
+        'Authorization': f'Bearer {COZE_API_KEY}',
         'Content-Type': 'application/json',
         'Accept': '*/*',
         'Host': 'api.coze.com',

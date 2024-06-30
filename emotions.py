@@ -4,24 +4,28 @@ from PIL import Image, ImageDraw, ImageFont
 from hume import HumeBatchClient
 from hume.models.config import FaceConfig
 
+from secret_key import HUME_API_KEY
+
 
 class FaceEmotionAnalyzer:
-    def __init__(self, api_key, filepaths):
-        self.client = HumeBatchClient(api_key)
+    def __init__(self):
+        self.client = HumeBatchClient(HUME_API_KEY)
         self.config = FaceConfig()
-        self.filepaths = filepaths
         self.job = None
 
-    def submit_job(self):
-        self.job = self.client.submit_job(
-            None, [self.config], files=self.filepaths)
-        print(self.job)
+    def submit_job_client(self, image_path):
+        try:
+            with open(image_path, 'rb') as file:
+                self.job = self.client.submit_job(
+                    None, [self.config], files=[image_path])
+        except FileNotFoundError as e:
+            print(f"Error submitting job: {e}")
 
     def await_completion(self):
         if self.job:
             self.job.await_complete()
             self.job.download_predictions("predictions.json")
-            print("Predictions downloaded to predictions.json")
+            # print("Predictions downloaded to predictions.json")
         else:
             print("Job not submitted. Please submit a job first.")
 
@@ -30,18 +34,18 @@ class FaceEmotionAnalyzer:
         highest_emotion = max(emotions, key=lambda x: x['score'])
         return highest_emotion['name'], highest_emotion['score']
 
-    def visualize_predictions(self):
+    def visualize_predictions(self, image_paths):
         with open('predictions.json') as f:
             data = json.load(f)
 
         for idx, prediction in enumerate(data):
-            base_path = os.path.dirname(self.filepaths[0])
+            base_path = os.path.dirname(image_paths)
             image_path = os.path.join(
                 base_path, prediction['source']['filename'])
-            print(f"Processing image {idx}: {image_path}")
+            # print(f"Processing image {idx}: {image_path}")
 
             if not image_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                print(f"Skipping non-image file: {image_path}")
+                # print(f"Skipping non-image file: {image_path}")
                 continue
 
             try:
@@ -59,8 +63,9 @@ class FaceEmotionAnalyzer:
                 for face_data in face['predictions']:
                     box = face_data['box']
                     draw.rectangle(
-                        [(box['x'], box['y']), (box['x'] + box['w'], box['y'] + box['h'])],
-                        outline="red", width=20
+                        [(box['x'], box['y']), (box['x'] +
+                                                box['w'], box['y'] + box['h'])],
+                        outline="red", width=2
                     )
 
                     emotion, score = self.get_highest_emotion(
@@ -70,26 +75,11 @@ class FaceEmotionAnalyzer:
 
                     face_count += 1
 
-            image.save(f'image_with_emotion_{idx}.png', quality=95)
+            image.save(
+                f'resource\\emotion\\{os.path.basename(image_paths)}', quality=95)
+            return f'resource\\emotion\\{os.path.basename(image_paths)}'
 
-            for face_idx, face in enumerate(prediction['results']['predictions'][0]['models']['face']['grouped_predictions'], start=1):
-                for face_data_idx, face_data in enumerate(face['predictions'], start=1):
-                    emotion, score = self.get_highest_emotion(
-                        face_data['emotions'])
-                    print(
-                        f'Person {face_idx}.{face_data_idx}: {emotion}({score:.2f})')
-
-            print(f"Image with emotions saved as image_with_emotion_{idx}.png")
-
-
-if __name__ == "__main__":
-    api_key = "YOUR_API_KEY"
-    filepaths = [
-        "D:\GIT\HUME\\BZ1A0408.jpg",
-        "D:\GIT\HUME\\BZ1A0464.jpg",
-    ]
-
-    analyzer = FaceEmotionAnalyzer(api_key, filepaths)
-    analyzer.submit_job()
-    analyzer.await_completion()
-    analyzer.visualize_predictions()
+    def analyze_emotion(self, image_path):
+        self.submit_job_client(image_path)
+        self.await_completion()
+        return self.visualize_predictions(image_path)
