@@ -61,10 +61,10 @@ class UI:
         # Call the API
         image_emotion = emotion_analyzer.analyze_emotion(
             file_path)
-        detect_marketing = marketing_detector.detect_marketing(
+        detect_marketing, marketing_product, drinking_person  = marketing_detector.detect_marketing(
             file_path)
 
-        return image_emotion, detect_marketing
+        return image_emotion, detect_marketing, marketing_product, drinking_person
 
     def handle_file_change(self):
         current_uploaded_files = st.session_state.uploaded_files
@@ -72,7 +72,7 @@ class UI:
             for uploaded_file in current_uploaded_files:
                 if uploaded_file.name not in self.uploaded_files_dict:
                     if not is_video_file(uploaded_file.name):
-                        image_emotion, detect_marketing = self.save_and_delete_file(
+                        image_emotion, detect_marketing, marketing_product, drinking_person = self.save_and_delete_file(
                             uploaded_file)
                         image = Image.open(uploaded_file)
                         img_byte_array = io.BytesIO()
@@ -86,16 +86,13 @@ class UI:
                             upload_response["url"])
 
                         if upload_response:
-                            # st.success(f"Upload successful! URL: {upload_response['url']}")
                             item = {
                                 "name": uploaded_file.name,
                                 "image_url": upload_response["url"],
                                 "predict": {
-                                    "image1": image,
-                                    "image2": image,
                                     "image3": detect_marketing,
                                     "image4": image_emotion,
-                                    "analysis": image_caption
+                                    "analysis": image_caption + "\n\n" + marketing_product + "\n\n" + drinking_person 
                                 }
                             }
                             self.uploaded_files_dict[uploaded_file.name] = item
@@ -126,17 +123,10 @@ class UI:
                     st.video(self.selected_file_name)
                 else:
                     chosen_item = self.uploaded_files_dict[self.selected_file_name]
-                    # st.image(
-                    # chosen_item["predict"]['image4'], caption=self.selected_file_name, use_column_width=True)
-                    col_images = st.columns(2)
-                    col_images[0].image(
+                    st.image(
                         chosen_item["predict"]['image4'], caption='', use_column_width=True)
-                    col_images[1].image(
-                        chosen_item["predict"]['image4'], caption='', use_column_width=True)
-                    col_images[0].image(
+                    st.image(
                         chosen_item["predict"]['image3'], caption='', use_column_width=True)
-                    col_images[1].image(
-                        chosen_item["predict"]['image4'], caption='', use_column_width=True)
 
         with col2:
             st.header("Analysis")

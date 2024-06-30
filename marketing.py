@@ -1,6 +1,7 @@
 import io
 import os
 import json
+import torch
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
@@ -65,6 +66,45 @@ class DectectMarketing:
         return preds
 
     def detect_marketing(self, image_path):
-        results = self.model(source=image_path, save=True, conf=0.35, project="resource", name="advertisement")[0]
-        # results.show()
-        return f'resource/advertisement/{os.path.basename(image_path)}'
+        img = Image.open(image_path)
+        image = img.copy()
+        image = image.resize((640, 640))
+        results = self.model(image, conf=0.35,)
+
+        img_byte_array = io.BytesIO()
+        image.save(img_byte_array, format=img.format)
+        img_byte_array = img_byte_array.getvalue()
+        upload_response = cloudinary.uploader.upload(
+            img_byte_array)
+
+        url_image = upload_response['url']
+
+        preds = self.get_predictions(results)
+        draw = ImageDraw.Draw(image)
+        for pred in preds:
+            draw.rectangle(
+                [(pred['xmin'], pred['ymin']), (pred['xmax'], pred['ymax'])],
+                outline="red", width=2
+            )
+            draw.text((pred['xmin'], pred['ymin']), pred['class'],
+                      fill="yellow")
+        image.save(
+            f'resource/advertisement/{os.path.basename(image_path)}', quality=95)
+
+        bounding_box = [pred for pred in preds if "-brand" in pred['class']]
+        promoter_person = [pred for pred in preds if "person" in pred['class'] or "-prometer" in pred['class']]
+
+        cozy_data_promoter = get_coze_data(
+            promoter_person, url_image, bot_id="7386091173783388161")
+        
+        # print(cozy_data_count)
+
+        if not bounding_box:
+            cozy_data_promotion = "There is no promotion items in this image."
+
+            return f'resource/advertisement/{os.path.basename(image_path)}', cozy_data_promotion, cozy_data_promoter["messages"][2]["content"]
+        else:
+            cozy_data_promotion = get_coze_data(
+                bounding_box, url_image, bot_id="7385922072989777927")
+            
+            return f'resource/advertisement/{os.path.basename(image_path)}', cozy_data_promotion["messages"][2]["content"], cozy_data_promoter["messages"][2]["content"]

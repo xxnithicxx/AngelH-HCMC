@@ -6,3 +6,7 @@ SpeechRecognition
 google-generativeai
 ultralytics
 roboflow
+hume 
+opencv-python 
+matplotlib 
+pillow

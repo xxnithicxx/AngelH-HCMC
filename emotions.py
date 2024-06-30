@@ -55,7 +55,7 @@ class FaceEmotionAnalyzer:
                 continue
 
             draw = ImageDraw.Draw(image)
-            font_size = 75
+            font_size = 35
             font = ImageFont.truetype("Arial.ttf", font_size)
 
             face_count = 1
