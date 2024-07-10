@@ -5,14 +5,12 @@ import cloudinary.uploader
 import cloudinary.api
 from PIL import Image
 import streamlit as st
-from streamlit_carousel import carousel
-import os
 # Local imports
-from helper import is_video_file
-from context import ContextAnalysis
-from emotions import FaceEmotionAnalyzer
-from marketing import DectectMarketing
-from secret_key import CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+from utils.helper import is_video_file
+from src.context import ContextAnalysis
+from src.emotions import FaceEmotionAnalyzer
+from src.marketing import DectectMarketing
+from utils.secret_keys import CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 
 
 cloudinary.config(
@@ -29,7 +27,7 @@ marketing_detector = DectectMarketing()
 st.set_page_config(layout="wide")
 st.title("Analysis App")
 
-with open("style.css") as f:
+with open("static/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
@@ -50,7 +48,7 @@ class UI:
 
     def save_and_delete_file(self, uploaded_file):
         # Save the uploaded file
-        file_path = f"download/{uploaded_file.name}"
+        file_path = f"static/downloads/{uploaded_file.name}"
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
@@ -59,10 +57,8 @@ class UI:
         # st.image(image, caption='Uploaded Image')
 
         # Call the API
-        image_emotion = emotion_analyzer.analyze_emotion(
-            file_path)
-        detect_marketing, marketing_product, drinking_person  = marketing_detector.detect_marketing(
-            file_path)
+        image_emotion = emotion_analyzer.analyze_emotion(file_path)
+        detect_marketing, marketing_product, drinking_person  = marketing_detector.detect_marketing(file_path)
 
         return image_emotion, detect_marketing, marketing_product, drinking_person
 
@@ -72,15 +68,13 @@ class UI:
             for uploaded_file in current_uploaded_files:
                 if uploaded_file.name not in self.uploaded_files_dict:
                     if not is_video_file(uploaded_file.name):
-                        image_emotion, detect_marketing, marketing_product, drinking_person = self.save_and_delete_file(
-                            uploaded_file)
+                        image_emotion, detect_marketing, marketing_product, drinking_person = self.save_and_delete_file(uploaded_file)
                         image = Image.open(uploaded_file)
                         img_byte_array = io.BytesIO()
                         image.save(img_byte_array, format=image.format)
                         img_byte_array = img_byte_array.getvalue()
 
-                        upload_response = cloudinary.uploader.upload(
-                            img_byte_array)
+                        upload_response = cloudinary.uploader.upload(img_byte_array)
 
                         image_caption = context_classifier.analyze_context(
                             upload_response["url"])

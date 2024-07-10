@@ -1,8 +1,5 @@
 import requests
-import json
-import os
-
-from secret_key import COZE_API_KEY
+from utils.secret_keys import COZE_API_KEY
 
 
 def is_video_file(filename):

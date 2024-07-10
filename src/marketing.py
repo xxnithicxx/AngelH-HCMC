@@ -1,15 +1,13 @@
 import io
 import os
-import json
-import torch
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
 from ultralytics import YOLO
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageDraw
 
-from helper import get_coze_data
-from secret_key import ROBOFLOW_API_KEY, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+from utils.helper import get_coze_data
+from utils.secret_keys import CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 
 cloudinary.config(
     cloud_name='dzf1raeil',
@@ -74,8 +72,7 @@ class DectectMarketing:
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format=img.format)
         img_byte_array = img_byte_array.getvalue()
-        upload_response = cloudinary.uploader.upload(
-            img_byte_array)
+        upload_response = cloudinary.uploader.upload(img_byte_array)
 
         url_image = upload_response['url']
 
@@ -86,25 +83,24 @@ class DectectMarketing:
                 [(pred['xmin'], pred['ymin']), (pred['xmax'], pred['ymax'])],
                 outline="red", width=2
             )
-            draw.text((pred['xmin'], pred['ymin']), pred['class'],
-                      fill="yellow")
-        image.save(
-            f'resource/advertisement/{os.path.basename(image_path)}', quality=95)
+            draw.text((pred['xmin'], pred['ymin']),
+                      pred['class'], fill="yellow")
+        image.save(f'static/assets/advertisement/{os.path.basename(image_path)}', quality=95)
 
         bounding_box = [pred for pred in preds if "-brand" in pred['class']]
-        promoter_person = [pred for pred in preds if "person" in pred['class'] or "-prometer" in pred['class']]
+        promoter_person = [
+            pred for pred in preds if "person" in pred['class'] or "-prometer" in pred['class']]
 
         cozy_data_promoter = get_coze_data(
             promoter_person, url_image, bot_id="7386091173783388161")
-        
+
         # print(cozy_data_count)
 
         if not bounding_box:
             cozy_data_promotion = "There is no promotion items in this image."
 
-            return f'resource/advertisement/{os.path.basename(image_path)}', cozy_data_promotion, cozy_data_promoter["messages"][2]["content"]
+            return f'static/assets/advertisement/{os.path.basename(image_path)}', cozy_data_promotion, cozy_data_promoter["messages"][2]["content"]
         else:
-            cozy_data_promotion = get_coze_data(
-                bounding_box, url_image, bot_id="7385922072989777927")
-            
-            return f'resource/advertisement/{os.path.basename(image_path)}', cozy_data_promotion["messages"][2]["content"], cozy_data_promoter["messages"][2]["content"]
+            cozy_data_promotion = get_coze_data(bounding_box, url_image, bot_id="7385922072989777927")
+
+            return f'static/assets/advertisement/{os.path.basename(image_path)}', cozy_data_promotion["messages"][2]["content"], cozy_data_promoter["messages"][2]["content"]

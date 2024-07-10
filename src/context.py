@@ -1,4 +1,4 @@
-from helper import get_coze_data
+from utils.helper import get_coze_data
 
 
 class ContextAnalysis:

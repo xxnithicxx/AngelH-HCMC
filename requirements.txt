@@ -1,0 +1,10 @@
+inference_sdk
+ultralytics
+roboflow
+hume 
+opencv-python 
+matplotlib 
+pillow
+cloudinary
+streamlit
+streamlit_carousel

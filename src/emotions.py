@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 from hume import HumeBatchClient
 from hume.models.config import FaceConfig
 
-from secret_key import HUME_API_KEY
+from utils.secret_keys import HUME_API_KEY
 
 
 class FaceEmotionAnalyzer:
@@ -24,8 +24,7 @@ class FaceEmotionAnalyzer:
     def await_completion(self):
         if self.job:
             self.job.await_complete()
-            self.job.download_predictions("predictions.json")
-            # print("Predictions downloaded to predictions.json")
+            self.job.download_predictions("static/data/predictions.json")
         else:
             print("Job not submitted. Please submit a job first.")
 
@@ -35,7 +34,7 @@ class FaceEmotionAnalyzer:
         return highest_emotion['name'], highest_emotion['score']
 
     def visualize_predictions(self, image_paths):
-        with open('predictions.json') as f:
+        with open('static/data/predictions.json') as f:
             data = json.load(f)
 
         for idx, prediction in enumerate(data):
@@ -56,7 +55,7 @@ class FaceEmotionAnalyzer:
 
             draw = ImageDraw.Draw(image)
             font_size = 35
-            font = ImageFont.truetype("Arial.ttf", font_size)
+            font = ImageFont.truetype("arial.ttf", font_size)
 
             face_count = 1
             for face in prediction['results']['predictions'][0]['models']['face']['grouped_predictions']:
@@ -70,14 +69,13 @@ class FaceEmotionAnalyzer:
 
                     emotion, score = self.get_highest_emotion(
                         face_data['emotions'])
-                    draw.text((box['x'], box['y']), f'{face_count}: {emotion} ({score:.2f})',
-                              fill="yellow", font=font)
+                    draw.text((box['x'], box['y']), f'{face_count}: {emotion} ({score:.2f})', fill="yellow", font=font)
 
                     face_count += 1
 
             image.save(
-                f'resource/emotion/{os.path.basename(image_paths)}', quality=95)
-            return f'resource/emotion/{os.path.basename(image_paths)}'
+                f'static/assets/emotion/{os.path.basename(image_paths)}', quality=95)
+            return f'static/assets/emotion/{os.path.basename(image_paths)}'
 
     def analyze_emotion(self, image_path):
         self.submit_job_client(image_path)
